@@ -203,20 +203,22 @@ with tabs[3]:
             st.write(f"### {r['Title']}\n{r['Message']}\n*Posted by {r['PostedBy']}*")
 
 # ------------------------ ADMIN TAB ------------------------
+# ------------------------ ADMIN TAB ------------------------
 with tabs[4]:
     st.header("Admin Panel")
-    pw = st.text_input("Admin Password", type="password")
-    if st.button("Login as Admin"):
-        if pw == ADMIN_PASSWORD:
-            st.success("✅ Admin Verified")
-            title = st.text_input("Notice Title")
-            msg = st.text_area("Notice Message")
-            by = st.text_input("Posted By", value="Admin")
 
-            if st.button("Post Notice"):
-                df = load_csv(NOTICE_FILE, ["Timestamp","Title","Message","PostedBy"])
-                df.loc[len(df)] = [datetime.now(), title, msg, by]
-                df.to_csv(NOTICE_FILE, index=False)
-                st.success("✅ Notice Posted")
-        else:
-            st.error("❌ Incorrect Password")
+    # ✅ Keep track of Admin login state
+    if "admin_logged_in" not in st.session_state:
+        st.session_state.admin_logged_in = False
+
+    # ✅ Show login box if admin is not logged in
+    if not st.session_state.admin_logged_in:
+        pw = st.text_input("Enter Admin Password", type="password")
+        if st.button("Login as Admin"):
+            if pw == ADMIN_PASSWORD:
+                st.session_state.admin_logged_in = True
+                st.success("✅ Admin Logged In Successfully!")
+            else:
+                st.error("❌ Incorrect Password")
+
+    # ✅ If admin is logged in, show notice posting
