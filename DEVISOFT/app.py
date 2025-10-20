@@ -204,14 +204,15 @@ with tabs[3]:
 
 # ------------------------ ADMIN TAB ------------------------
 # ------------------------ ADMIN TAB ------------------------
+# ------------------------ ADMIN TAB ------------------------
 with tabs[4]:
     st.header("Admin Panel")
 
-    # ✅ Keep track of Admin login state
+    # ✅ Create admin session state once
     if "admin_logged_in" not in st.session_state:
         st.session_state.admin_logged_in = False
 
-    # ✅ Show login box if admin is not logged in
+    # ✅ If admin is NOT logged in → show login form
     if not st.session_state.admin_logged_in:
         pw = st.text_input("Enter Admin Password", type="password")
         if st.button("Login as Admin"):
@@ -221,4 +222,23 @@ with tabs[4]:
             else:
                 st.error("❌ Incorrect Password")
 
-    # ✅ If admin is logged in, show notice posting
+    # ✅ If admin IS logged in → show Notice Posting area
+    else:
+        st.success("✅ You are logged in as Admin")
+
+        # Notice posting form
+        title = st.text_input("Notice Title")
+        msg = st.text_area("Notice Message")
+        by = st.text_input("Posted By", value="Admin")
+
+        if st.button("Post Notice"):
+            df = load_csv(NOTICE_FILE, ["Timestamp","Title","Message","PostedBy"])
+            df.loc[len(df)] = [datetime.now(), title, msg, by]
+            df.to_csv(NOTICE_FILE, index=False)
+            st.success("✅ Notice Posted Successfully!")
+
+        # ✅ Logout button for admin only
+        if st.button("Logout Admin"):
+            st.session_state.admin_logged_in = False
+            st.rerun()
+
